@@ -30,26 +30,18 @@ function Lexer(file: string) {
           breakWhile = false;
           return Token(KW.EOF, "EOF", is.pointers().line, is.pointers().col)
         }
-        else if (c == ' ' || c == '\t' || c == '\n') {
+        else if (c === ' ' || c === '\t' || c === '\n' || c === '\r') {
           state = 1
         }
-        else if (c == '=') {
+        else if (c === '"') {
           state = 2
         }
-        else if (c == '!') {
-          state = 3
+        else if (c === ":") { 
+          lexeme += c
+          state = 7;
         }
-        else if (c == '<') {
-          state = 4
-        }
-        else if (c == '>') {
-          state = 5
-        }
-        else if (c == '{') {
-          return Token(KW.SMB_ABRE_CHAVES, "{", is.pointers().line, is.pointers().col)
-        }
-        else if (c == '}') {
-          return Token(KW.SMB_FECHA_CHAVES, "}", is.pointers().line, is.pointers().col)
+        else if (c === ";") { 
+          return Token(KW.SMB_POINT_SEMICOLON, ";", is.pointers().line, is.pointers().col)
         }
         else if (!isNaN(+c)) {
           lexeme += c
@@ -65,46 +57,17 @@ function Lexer(file: string) {
         } 
       }
 
-      else if (state == 2) {
-        if (c == '=')
-          return Token(ETipoToken.OP_IGUAL, "==", is.pointers().line, is.pointers().col)
-        else {
-          lexError("Caractere invalido [" + c + "] na linha " + is.pointers().line + " e coluna " + is.pointers().col)
-          return null;
+      else if (state === 2) {
+        is.previous();
+        while( is.peek().char !== '"') { 
+          lexeme += is.peek().char;
+          is.next();
         }
+        is.next();
+        return Token(ETipoToken.LITERALS, `${lexeme}`, is.pointers().line, is.pointers().col)
       }
 
-      else if (state == 3) {
-        if (c == '=') {
-          return Token(ETipoToken.OP_DIFERENTE, "!=", is.pointers().line, is.pointers().col)
-        }
-        else {
-          lexError("Caractere invalido [" + c + "] na linha " + is.pointers().line + " e coluna " + is.pointers().col)
-          return null;
-        }
-      }
-
-      else if (state == 4) {
-        if (c == '=') {
-          return Token(ETipoToken.OP_MENOR_IGUAL, "<=", is.pointers().line, is.pointers().col)
-        }
-        else {
-          previousPointer();
-          return Token(ETipoToken.OP_MENOR, "<", is.pointers().line, is.pointers().col)
-        }
-      }
-
-      else if (state == 5) {
-        if (c == '=') {
-          return Token(ETipoToken.OP_MAIOR_IGUAL, ">=", is.pointers().line, is.pointers().col)
-        }
-        else {
-          previousPointer();
-          return Token(ETipoToken.OP_MAIOR, ">", is.pointers().line, is.pointers().col)
-        }
-      }
-
-      else if (state == 6) {
+      else if (state === 6) {
         if (!isNaN(+c)) {
           lexeme += c
         }
@@ -117,9 +80,9 @@ function Lexer(file: string) {
         }
       }
 
-      else if (state == 7) {
+      else if (state === 7) {
          if(isAlphaNumeric(c)) { 
-           lexeme += c
+            lexeme += c
          }
          else { 
            previousPointer();
@@ -137,6 +100,6 @@ function Lexer(file: string) {
 }
 
 const isAlpha = str => /^[a-zA-Z]*$/.test(str);
-const isAlphaNumeric = str => /^[a-z0-9]+$/gi.test(str);
+const isAlphaNumeric = str => /^[a-zA-Z0-9]+$/gi.test(str);
 
 export { Lexer }

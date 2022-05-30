@@ -11,9 +11,9 @@ import { Token } from "./Token/Token";
   var token = lexer.nextToken();
 
   while (token !== null && token.name !== ETipoToken.EOF) {
-    console.log(token);
+    console.log(token.lexema);
     token = lexer.nextToken();
   }
-  console.log(token);
+  console.log(token.lexema);
 }
 )()

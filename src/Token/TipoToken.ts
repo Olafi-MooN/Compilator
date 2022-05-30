@@ -1,30 +1,43 @@
 enum ETipoToken {
-  // # Fim de arquivo
+  // # Start file
+  AJM_SOF = 'AJM_SOF',
+  
+  // # End of file
   EOF = 'EOF',
 
-  //  # Palavras-chave
-  KW_IF = 'KW_IF',
-  KW_ELSE = 'KW_ELSE',
-  KW_THEN = 'KW_THEN',
+  //  # Keywords
+  KW_BEGIN = 'KW_BEGIN',
+  KW_END = 'KW_END',
   KW_PRINT = 'KW_PRINT',
+  KW_FORWARD = 'KW_FORWARD',
+  KW_IF = 'KW_IF',
+  KW_REPEAT = 'KW_REPEAT',
+  KW_DO = 'KW_DO',
+  KW_TURN = 'KW_TURN',
+  KW_DEGREES = 'KW_DEGREES',
 
-  //  # Operadores 
-  OP_MENOR = 'OP_MENOR',
-  OP_MENOR_IGUAL = 'OP_MENOR_IGUAL',
-  OP_MAIOR_IGUAL = 'OP_MAIOR_IGUAL',
-  OP_MAIOR = 'OP_MAIOR',
-  OP_IGUAL = 'OP_IGUAL',
-  OP_DIFERENTE = 'OP_DIFERENTE',
+  //  # Operations 
+  OP_SUM = 'OR_SUM',
+  OP_SUBTRACTION = 'OP_SUBTRACTION',
+  OP_MULTIPLICATION = 'OP_MULTIPLICATION',
+  OP_DIVISION = 'OP_DIVISION',
 
-  //  # Simbolos
-  SMB_ABRE_CHAVES = 'SMB_ABRE_CHAVES',
-  SMB_FECHA_CHAVES = '1MB_FECHA_CHAVES',
+  //  # Symbols
+  SMB_TWO_POINTS = 'SMB_TWO_POINTS',
+  SMB_POINT_SEMICOLON = 'SMB_POINT_SEMICOLON',
 
   //  # Identificador
   ID = 'ID',
 
-  //  # Numeros
+  //  # Numbers
   NUM = 'NUM',
+
+  // # Commented
+  COMMENTS = 'COMMENTS',
+
+  // # Literals
+  LITERALS = 'LITERALS'
 }
+
 
 export { ETipoToken };
