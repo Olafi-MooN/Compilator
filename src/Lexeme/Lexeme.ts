@@ -20,36 +20,41 @@ function Lexer(file: string) {
     var state = 1;
     var lexeme = '';
     var c = null;
-    var breakWhile = true;
 
-    while (breakWhile) {
-      let c = is.next();
+    if(is.eof()) { 
+      return null;
+    }
+    while (true) {
+      c = is.next();
 
       if (state === 1) {
         if (c === '') {
-          breakWhile = false;
           return Token(KW.EOF, "EOF", is.pointers().line, is.pointers().col)
         }
         else if (c === ' ' || c === '\t' || c === '\n' || c === '\r') {
-          state = 1
+          state = 1;
         }
         else if (c === '"') {
-          state = 2
-        }
+          state = 2;
+          lexeme += c;
+         }
         else if (c === ":") { 
-          lexeme += c
-          state = 7;
+          lexeme += c;
+          state = 3;
         }
         else if (c === ";") { 
           return Token(KW.SMB_POINT_SEMICOLON, ";", is.pointers().line, is.pointers().col)
+        } else if (isOperators(c)) {
+          lexeme += c;
+          state = 4;
         }
         else if (!isNaN(+c)) {
           lexeme += c
-          state = 6
+          state = 5
         }
         else if (isAlpha(c)) {
           lexeme += c
-          state = 7
+          state = 3;
         }
         else {
           lexError("Caractere invalido [" + c + "] na linha " + is.pointers().line + " e coluna " + is.pointers().col)
@@ -59,15 +64,20 @@ function Lexer(file: string) {
 
       else if (state === 2) {
         is.previous();
-        while( is.peek().char !== '"') { 
-          lexeme += is.peek().char;
+        lexeme += is.peek().char;
+        while( is.peek().char !== '"') {
+          if(is.peek().char === "\r") {
+            lexError("<< lexical error >> Literal does not allow line wrapping -> Line: " + is.pointers().line + ", column: " + is.pointers().col);
+            return null
+          } 
           is.next();
+          lexeme += is.peek().char;
         }
         is.next();
         return Token(ETipoToken.LITERALS, `${lexeme}`, is.pointers().line, is.pointers().col)
       }
 
-      else if (state === 6) {
+      else if (state === 5) {
         if (!isNaN(+c)) {
           lexeme += c
         }
@@ -80,7 +90,7 @@ function Lexer(file: string) {
         }
       }
 
-      else if (state === 7) {
+      else if (state === 3) {
          if(isAlphaNumeric(c)) { 
             lexeme += c
          }
@@ -93,13 +103,21 @@ function Lexer(file: string) {
            return Token(ETipoToken.ID, lexeme, is.pointers().line, is.pointers().col)
          }
       }
+      
+      else if (state === 4) {
+         if(lexeme === "+") return Token(ETipoToken.OP_SUM, lexeme, is.pointers().line, is.pointers().col);
+         if(lexeme === "-") return Token(ETipoToken.OP_SUBTRACTION, lexeme, is.pointers().line, is.pointers().col);
+         if(lexeme === "/") return Token(ETipoToken.OP_DIVISION, lexeme, is.pointers().line, is.pointers().col);
+         if(lexeme === "*") return Token(ETipoToken.OP_MULTIPLICATION, lexeme, is.pointers().line, is.pointers().col);
+      }
     }
   }
 
   return { lexError, nextToken };
 }
 
-const isAlpha = str => /^[a-zA-Z]*$/.test(str);
-const isAlphaNumeric = str => /^[a-zA-Z0-9]+$/gi.test(str);
+const isAlpha: (c: string) => boolean = c => /^[a-zA-Z]*$/.test(c);
+const isAlphaNumeric: (c: string) => boolean = c => /^[a-zA-Z0-9]+$/gi.test(c);
+const isOperators: (c: string) => boolean = c => c === "+" || c === "-" || c === "/" || c === "*";
 
 export { Lexer }
