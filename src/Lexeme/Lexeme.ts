@@ -9,7 +9,7 @@ function Lexer(file: string) {
   let KW: typeof ETipoToken = ETipoToken;
 
   function lexError(message: string): void {
-    throw new Error(message);
+    throw new Error("<< lexical error >> " + message);
   }
 
   function previousPointer() {
@@ -21,7 +21,7 @@ function Lexer(file: string) {
     var lexeme = '';
     var c = null;
 
-    if(is.eof()) { 
+    if (is.eof()) {
       return null;
     }
     while (true) {
@@ -37,18 +37,21 @@ function Lexer(file: string) {
         else if (c === '"') {
           state = 2;
           lexeme += c;
-         }
-        else if (c === ":") { 
+        }
+        else if (c === ":") {
           lexeme += c;
           state = 3;
         }
-        else if (c === ";") { 
+        else if (c === ";") {
           return Token(KW.SMB_POINT_SEMICOLON, ";", is.pointers().line, is.pointers().col)
         } else if (isOperators(c)) {
           lexeme += c;
           state = 4;
+        } else if(c === "{") { 
+          lexeme += c;
+          state = 6;
         }
-        else if (!isNaN(+c)) {
+        else if (!isNaN(+c)) { // is number
           lexeme += c
           state = 5
         }
@@ -57,24 +60,72 @@ function Lexer(file: string) {
           state = 3;
         }
         else {
-          lexError("Caractere invalido [" + c + "] na linha " + is.pointers().line + " e coluna " + is.pointers().col)
+          lexError("Invalid character [" + c + "] in line " + is.pointers().line + " and column " + is.pointers().col)
           return null
-        } 
+        }
       }
 
       else if (state === 2) {
         is.previous();
         lexeme += is.peek().char;
-        while( is.peek().char !== '"') {
-          if(is.peek().char === "\r") {
-            lexError("<< lexical error >> Literal does not allow line wrapping -> Line: " + is.pointers().line + ", column: " + is.pointers().col);
+        while (is.peek().char !== '"') {
+          if (is.peek().char === "\r") {
+            lexError("Literal does not allow line wrapping -> Line: " + is.pointers().line + ", column: " + is.pointers().col);
             return null
-          } 
+          }
           is.next();
           lexeme += is.peek().char;
         }
         is.next();
         return Token(ETipoToken.LITERALS, `${lexeme}`, is.pointers().line, is.pointers().col)
+      }
+
+      else if (state === 3) {
+        if (isAlphaNumeric(c)) {
+          lexeme += c
+        }
+        else {
+          previousPointer();
+          var token: ITokenModel = dictionary.get(lexeme.replaceAll(/\s/g, ""));
+          if (token) {
+            return Token(token.name, token.lexema, is.pointers().line, is.pointers().col);
+          }
+          return Token(ETipoToken.ID, lexeme, is.pointers().line, is.pointers().col)
+        }
+      }
+
+      else if (state === 4) {
+        if (lexeme === "+") {
+          lexeme += c;
+          if(isAlpha(c)) { 
+            lexError("Invalid character [" + c + "] in line " + is.pointers().line + ", column: " + is.pointers().col)
+          }
+          c = is.next();
+          if (!isNaN(c)) {
+            lexeme += c;
+            state = 5;
+          }
+          else {
+            lexeme = is.previous();
+            return Token(ETipoToken.OP_SUM, lexeme, is.pointers().line, is.pointers().col)
+          }
+        };
+        if (lexeme === "-") {
+          lexeme += c;
+          if(isAlpha(c)) { 
+            lexError("Invalid character [" + c + "] in line " + is.pointers().line + ", column: " + is.pointers().col)
+          }
+          c = is.next();
+          if (!isNaN(c)) {
+            lexeme += c;
+            state = 5;
+          } else {
+            lexeme = is.previous();
+            return Token(ETipoToken.OP_SUBTRACTION, lexeme, is.pointers().line, is.pointers().col)
+          }
+        };
+        if (lexeme === "/") return Token(ETipoToken.OP_DIVISION, lexeme, is.pointers().line, is.pointers().col);
+        if (lexeme === "*") return Token(ETipoToken.OP_MULTIPLICATION, lexeme, is.pointers().line, is.pointers().col);
       }
 
       else if (state === 5) {
@@ -83,32 +134,26 @@ function Lexer(file: string) {
         }
         else {
           previousPointer();
-          if(lexeme.replaceAll(/\s/g, "") !== '') {
+          if (lexeme.replaceAll(/\s/g, "") !== '') {
             return Token(ETipoToken.NUM, lexeme.replaceAll(/\s/g, ""), is.pointers().line, is.pointers().col)
           }
           state = 1;
         }
       }
 
-      else if (state === 3) {
-         if(isAlphaNumeric(c)) { 
-            lexeme += c
-         }
-         else { 
-           previousPointer();
-           var token: ITokenModel = dictionary.get(lexeme.replaceAll(/\s/g, ""));
-           if(token) { 
-             return Token(token.name, token.lexema, is.pointers().line, is.pointers().col);
-           }
-           return Token(ETipoToken.ID, lexeme, is.pointers().line, is.pointers().col)
-         }
-      }
-      
-      else if (state === 4) {
-         if(lexeme === "+") return Token(ETipoToken.OP_SUM, lexeme, is.pointers().line, is.pointers().col);
-         if(lexeme === "-") return Token(ETipoToken.OP_SUBTRACTION, lexeme, is.pointers().line, is.pointers().col);
-         if(lexeme === "/") return Token(ETipoToken.OP_DIVISION, lexeme, is.pointers().line, is.pointers().col);
-         if(lexeme === "*") return Token(ETipoToken.OP_MULTIPLICATION, lexeme, is.pointers().line, is.pointers().col);
+      else if (state === 6) {
+        is.previous();
+        lexeme += is.peek().char;
+        while (is.peek().char !== '}') {
+          if (is.peek().char === "\r") {
+            lexError("Comments does not allow line wrapping -> Line: " + is.pointers().line + ", column: " + is.pointers().col);
+            return null
+          }
+          is.next();
+          lexeme += is.peek().char;
+        }
+        is.next();
+        return Token(ETipoToken.COMMENTS, `${lexeme}`, is.pointers().line, is.pointers().col)
       }
     }
   }
