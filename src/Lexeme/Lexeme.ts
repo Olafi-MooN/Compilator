@@ -6,10 +6,20 @@ import { Token } from "../Token/Token";
 
 function Lexer(file: string) {
   let is = InputStream(file);
+  let panicMode = { count: 0, message: [] };
   let KW: typeof ETipoToken = ETipoToken;
 
   function lexError(message: string): void {
-    throw new Error("<< lexical error >> " + message);
+    throw new Error("\u001b[31m"+`\n\n << lexical error >> \n ${message}\n`);
+  }
+
+  function panicModeManger(message: string): void {
+    if(panicMode.count >= 6) { 
+      lexError(panicMode.message.join("\n "))
+    }
+    else {
+      panicMode.message.push(message);
+    }
   }
 
   function previousPointer() {
@@ -70,8 +80,12 @@ function Lexer(file: string) {
         lexeme += is.peek().char;
         while (is.peek().char !== '"') {
           if (is.peek().char === "\r") {
-            lexError("Literal does not allow line wrapping -> Line: " + is.pointers().line + ", column: " + is.pointers().col);
-            return null
+            panicMode.count += 1;
+            panicModeManger(`Comments does not allow line wrapping -> Line: ${is.pointers().line}, column: ${is.pointers().col}`);
+          }
+          if (is.peek().char === "") {
+            panicMode.count += 1;
+            panicModeManger(`Not found ['"'] -> Line: ${is.pointers().line}, column: ${is.pointers().col}`);
           }
           is.next();
           lexeme += is.peek().char;
@@ -146,8 +160,12 @@ function Lexer(file: string) {
         lexeme += is.peek().char;
         while (is.peek().char !== '}') {
           if (is.peek().char === "\r") {
-            lexError("Comments does not allow line wrapping -> Line: " + is.pointers().line + ", column: " + is.pointers().col);
-            return null
+            panicMode.count += 1;
+            panicModeManger("Comments does not allow line wrapping -> Line: " + is.pointers().line + ", column: " + is.pointers().col);
+          }
+          if (is.peek().char === "") {
+            panicMode.count += 1;
+            panicModeManger("Not found ['}'] -> Line: " + is.pointers().line + ", column: " + is.pointers().col);
           }
           is.next();
           lexeme += is.peek().char;
