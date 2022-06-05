@@ -1,9 +1,6 @@
 import { ITokenModel } from "./Interfaces/ITokenModel";
 import { Lexer } from "./Lexeme/Lexeme";
-import { InputStream } from "./ReadFile/InputStream";
 import { ReadFile } from "./ReadFile/ReadFile";
-import { ETipoToken } from "./Token/TipoToken";
-import { Token } from "./Token/Token";
 
 (async () => {
   var language = (await ReadFile('alguma.txt')).toString();
@@ -13,7 +10,7 @@ import { Token } from "./Token/Token";
   while (token !== null) {
     token = lexer.nextToken();
     if(token !== null) { 
-      console.log(token);
+      console.log(token.token);
     }
   }
 

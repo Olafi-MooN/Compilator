@@ -1,4 +1,4 @@
-import { ITokenFunctionModel, ITokenModel } from "../Interfaces/ITokenModel";
+import { ITokenModel } from "../Interfaces/ITokenModel";
 import { InputStream } from "../ReadFile/InputStream";
 import { dictionary } from "../Token/Dictionary";
 import { ETipoToken } from "../Token/TipoToken";
@@ -7,7 +7,7 @@ import { Token } from "../Token/Token";
 function Lexer(file: string) {
   let is = InputStream(file);
   let panicMode = { count: 0, message: [] };
-  let KW: typeof ETipoToken = ETipoToken;
+  let EKW: typeof ETipoToken = ETipoToken;
 
   function lexError(message: string): void {
     throw new Error("\u001b[31m"+`\n\n << lexical error >> \n ${message}\n`);
@@ -39,7 +39,7 @@ function Lexer(file: string) {
 
       if (state === 1) {
         if (c === '') {
-          return Token(KW.EOF, "EOF", is.pointers().line, is.pointers().col)
+          return Token(EKW.EOF, "EOF", is.pointers().line, is.pointers().col)
         }
         else if (c === ' ' || c === '\t' || c === '\n' || c === '\r') {
           state = 1;
@@ -49,11 +49,10 @@ function Lexer(file: string) {
           lexeme += c;
         }
         else if (c === ":") {
-          lexeme += c;
-          state = 3;
+          return Token(EKW.SMB_TWO_POINTS, c, is.pointers().line, is.pointers().col)
         }
         else if (c === ";") {
-          return Token(KW.SMB_POINT_SEMICOLON, ";", is.pointers().line, is.pointers().col)
+          return Token(EKW.SMB_POINT_SEMICOLON, c, is.pointers().line, is.pointers().col)
         } else if (isOperators(c)) {
           lexeme += c;
           state = 4;
