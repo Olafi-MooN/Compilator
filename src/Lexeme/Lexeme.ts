@@ -1,6 +1,6 @@
 import { ITokenModel } from "../Interfaces/ITokenModel";
 import { InputStream } from "../ReadFile/InputStream";
-import { dictionary } from "../Token/Dictionary";
+import { symbols } from "../Token/Symbols";
 import { ETipoToken } from "../Token/TipoToken";
 import { Token } from "../Token/Token";
 
@@ -74,13 +74,14 @@ function Lexer(file: string) {
         }
       }
 
+      // Create Literals
       else if (state === 2) {
         is.previous();
         lexeme += is.peek().char;
         while (is.peek().char !== '"') {
           if (is.peek().char === "\r") {
             panicMode.count += 1;
-            panicModeManger(`Comments does not allow line wrapping -> Line: ${is.pointers().line}, column: ${is.pointers().col}`);
+            panicModeManger(`Literals does not allow line wrapping -> Line: ${is.pointers().line}, column: ${is.pointers().col}`);
           }
           if (is.peek().char === "") {
             panicMode.count += 1;
@@ -93,20 +94,26 @@ function Lexer(file: string) {
         return Token(ETipoToken.LITERALS, `${lexeme}`, is.pointers().line, is.pointers().col)
       }
 
+      // Create Symbols
       else if (state === 3) {
         if (isAlphaNumeric(c)) {
           lexeme += c
         }
         else {
           previousPointer();
-          var token: ITokenModel = dictionary.get(lexeme.replaceAll(/\s/g, ""));
+          var token: ITokenModel = symbols.get(lexeme.replaceAll(/\s/g, ""));
+          // Is Symbol
           if (token) {
             return Token(token.name, token.lexema, is.pointers().line, is.pointers().col);
           }
-          return Token(ETipoToken.ID, lexeme, is.pointers().line, is.pointers().col)
+          // Is Id
+          const tokenId: ITokenModel = Token(ETipoToken.ID, lexeme, is.pointers().line, is.pointers().col)
+          symbols.set(lexeme, tokenId);
+          return tokenId;
         }
       }
 
+      // Create Operators
       else if (state === 4) {
         if (lexeme === "+") {
           lexeme += c;
@@ -120,7 +127,7 @@ function Lexer(file: string) {
           }
           else {
             lexeme = is.previous();
-            return Token(ETipoToken.OP_SUM, lexeme, is.pointers().line, is.pointers().col)
+            return Token(ETipoToken.OP_SUM, lexeme?.length > 1 ? lexeme : "+", is.pointers().line, is.pointers().col)
           }
         };
         if (lexeme === "-") {
@@ -134,13 +141,14 @@ function Lexer(file: string) {
             state = 5;
           } else {
             lexeme = is.previous();
-            return Token(ETipoToken.OP_SUBTRACTION, lexeme, is.pointers().line, is.pointers().col)
+            return Token(ETipoToken.OP_SUBTRACTION, lexeme?.length > 1 ? lexeme : "-", is.pointers().line, is.pointers().col)
           }
         };
         if (lexeme === "/") return Token(ETipoToken.OP_DIVISION, lexeme, is.pointers().line, is.pointers().col);
         if (lexeme === "*") return Token(ETipoToken.OP_MULTIPLICATION, lexeme, is.pointers().line, is.pointers().col);
       }
 
+      // Create NUM token
       else if (state === 5) {
         if (!isNaN(+c)) {
           lexeme += c
@@ -153,7 +161,8 @@ function Lexer(file: string) {
           state = 1;
         }
       }
-
+      
+      // Create comment token
       else if (state === 6) {
         is.previous();
         lexeme += is.peek().char;
@@ -175,7 +184,7 @@ function Lexer(file: string) {
     }
   }
 
-  return { lexError, nextToken };
+  return { lexError, nextToken, symbols };
 }
 
 const isAlpha: (c: string) => boolean = c => /^[a-zA-Z]*$/.test(c);

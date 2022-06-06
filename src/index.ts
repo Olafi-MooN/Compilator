@@ -13,6 +13,4 @@ import { ReadFile } from "./ReadFile/ReadFile";
       console.log(token.token);
     }
   }
-
-}
-)()
+})()
