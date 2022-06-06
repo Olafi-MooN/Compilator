@@ -7,7 +7,7 @@ This project educational of study;
 ### Technologies implemented in this project:
 - nodejs
 - typescript
-- ts-node-dev
+- nodemon
 
 ## Cloning repository
 Command to clone the application in your development environment
@@ -26,3 +26,9 @@ Terminal command to run the application using npm.
 ```bash
 npm start
 ```
+## Making the application working
+### Created by Alef Santos Soares - alefmastertutor@gmail.com
+
+## Co-programmers 
+Marlon Rodrigues  - marlonsrrodrigues@gmail.com
+João Vitor Guimarães
