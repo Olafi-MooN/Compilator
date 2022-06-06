@@ -5,13 +5,13 @@ const InputStream: IInputStreamModel = (txt: string) => {
 
   function next() {
     var ch = txt.charAt(pos++);
-    if (ch == "\n") line++, col = 0; else col++;
+    if (ch == "\n" || ch == "\r\n") line++, col = 0; else col++;
     return ch;
   }
 
   function previous() {
     var ch = txt.charAt(pos--);
-    if (ch == "\n") line--, col = 0; else col--;
+    if (ch == "\n" || ch == "\r\n") line--, col = 0; else col--;
     return ch;
   }
 

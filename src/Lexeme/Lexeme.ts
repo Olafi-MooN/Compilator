@@ -1,15 +1,25 @@
-import { ITokenFunctionModel, ITokenModel } from "../Interfaces/ITokenModel";
+import { ITokenModel } from "../Interfaces/ITokenModel";
 import { InputStream } from "../ReadFile/InputStream";
-import { dictionary } from "../Token/Dictionary";
+import { symbols } from "../Token/Symbols";
 import { ETipoToken } from "../Token/TipoToken";
 import { Token } from "../Token/Token";
 
 function Lexer(file: string) {
   let is = InputStream(file);
-  let KW: typeof ETipoToken = ETipoToken;
+  let panicMode = { count: 0, message: [] };
+  let EKW: typeof ETipoToken = ETipoToken;
 
   function lexError(message: string): void {
-    throw new Error(message);
+    throw new Error("\u001b[31m"+`\n\n << lexical error >> \n ${message}\n`);
+  }
+
+  function panicModeManger(message: string): void {
+    if(panicMode.count >= 6) { 
+      lexError(panicMode.message.join("\n "))
+    }
+    else {
+      panicMode.message.push(message);
+    }
   }
 
   function previousPointer() {
@@ -20,123 +30,165 @@ function Lexer(file: string) {
     var state = 1;
     var lexeme = '';
     var c = null;
-    var breakWhile = true;
 
-    while (breakWhile) {
-      let c = is.next();
+    if (is.eof()) {
+      return null;
+    }
+    while (true) {
+      c = is.next();
 
       if (state === 1) {
         if (c === '') {
-          breakWhile = false;
-          return Token(KW.EOF, "EOF", is.pointers().line, is.pointers().col)
+          return Token(EKW.EOF, "EOF", is.pointers().line, is.pointers().col)
         }
-        else if (c == ' ' || c == '\t' || c == '\n') {
-          state = 1
+        else if (c === ' ' || c === '\t' || c === '\n' || c === '\r') {
+          state = 1;
         }
-        else if (c == '=') {
-          state = 2
+        else if (c === '"') {
+          state = 2;
+          lexeme += c;
         }
-        else if (c == '!') {
-          state = 3
+        else if (c === ":") {
+          return Token(EKW.SMB_TWO_POINTS, c, is.pointers().line, is.pointers().col)
         }
-        else if (c == '<') {
-          state = 4
+        else if (c === ";") {
+          return Token(EKW.SMB_POINT_SEMICOLON, c, is.pointers().line, is.pointers().col)
+        } else if (isOperators(c)) {
+          lexeme += c;
+          state = 4;
+        } else if(c === "{") { 
+          lexeme += c;
+          state = 6;
         }
-        else if (c == '>') {
-          state = 5
-        }
-        else if (c == '{') {
-          return Token(KW.SMB_ABRE_CHAVES, "{", is.pointers().line, is.pointers().col)
-        }
-        else if (c == '}') {
-          return Token(KW.SMB_FECHA_CHAVES, "}", is.pointers().line, is.pointers().col)
-        }
-        else if (!isNaN(+c)) {
+        else if (!isNaN(+c)) { // is number
           lexeme += c
-          state = 6
+          state = 5
         }
         else if (isAlpha(c)) {
           lexeme += c
-          state = 7
+          state = 3;
         }
         else {
-          lexError("Caractere invalido [" + c + "] na linha " + is.pointers().line + " e coluna " + is.pointers().col)
+          lexError("Invalid character [" + c + "] in line " + is.pointers().line + " and column " + is.pointers().col)
           return null
-        } 
-      }
-
-      else if (state == 2) {
-        if (c == '=')
-          return Token(ETipoToken.OP_IGUAL, "==", is.pointers().line, is.pointers().col)
-        else {
-          lexError("Caractere invalido [" + c + "] na linha " + is.pointers().line + " e coluna " + is.pointers().col)
-          return null;
         }
       }
 
-      else if (state == 3) {
-        if (c == '=') {
-          return Token(ETipoToken.OP_DIFERENTE, "!=", is.pointers().line, is.pointers().col)
+      // Create Literals
+      else if (state === 2) {
+        is.previous();
+        lexeme += is.peek().char;
+        while (is.peek().char !== '"') {
+          if (is.peek().char === "\r") {
+            panicMode.count += 1;
+            panicModeManger(`Literals does not allow line wrapping -> Line: ${is.pointers().line}, column: ${is.pointers().col}`);
+          }
+          if (is.peek().char === "") {
+            panicMode.count += 1;
+            panicModeManger(`Not found ['"'] -> Line: ${is.pointers().line}, column: ${is.pointers().col}`);
+          }
+          is.next();
+          lexeme += is.peek().char;
         }
-        else {
-          lexError("Caractere invalido [" + c + "] na linha " + is.pointers().line + " e coluna " + is.pointers().col)
-          return null;
-        }
+        is.next();
+        return Token(ETipoToken.LITERALS, `${lexeme}`, is.pointers().line, is.pointers().col)
       }
 
-      else if (state == 4) {
-        if (c == '=') {
-          return Token(ETipoToken.OP_MENOR_IGUAL, "<=", is.pointers().line, is.pointers().col)
-        }
-        else {
-          previousPointer();
-          return Token(ETipoToken.OP_MENOR, "<", is.pointers().line, is.pointers().col)
-        }
-      }
-
-      else if (state == 5) {
-        if (c == '=') {
-          return Token(ETipoToken.OP_MAIOR_IGUAL, ">=", is.pointers().line, is.pointers().col)
+      // Create Symbols
+      else if (state === 3) {
+        if (isAlphaNumeric(c)) {
+          lexeme += c
         }
         else {
           previousPointer();
-          return Token(ETipoToken.OP_MAIOR, ">", is.pointers().line, is.pointers().col)
+          var token: ITokenModel = symbols.get(lexeme.replaceAll(/\s/g, ""));
+          // Is Symbol
+          if (token) {
+            return Token(token.name, token.lexema, is.pointers().line, is.pointers().col);
+          }
+          // Is Id
+          const tokenId: ITokenModel = Token(ETipoToken.ID, lexeme, is.pointers().line, is.pointers().col)
+          symbols.set(lexeme, tokenId);
+          return tokenId;
         }
       }
 
-      else if (state == 6) {
+      // Create Operators
+      else if (state === 4) {
+        if (lexeme === "+") {
+          lexeme += c;
+          if(isAlpha(c)) { 
+            lexError("Invalid character [" + c + "] in line " + is.pointers().line + ", column: " + is.pointers().col)
+          }
+          c = is.next();
+          if (!isNaN(c)) {
+            lexeme += c;
+            state = 5;
+          }
+          else {
+            lexeme = is.previous();
+            return Token(ETipoToken.OP_SUM, lexeme?.length > 1 ? lexeme : "+", is.pointers().line, is.pointers().col)
+          }
+        };
+        if (lexeme === "-") {
+          lexeme += c;
+          if(isAlpha(c)) { 
+            lexError("Invalid character [" + c + "] in line " + is.pointers().line + ", column: " + is.pointers().col)
+          }
+          c = is.next();
+          if (!isNaN(c)) {
+            lexeme += c;
+            state = 5;
+          } else {
+            lexeme = is.previous();
+            return Token(ETipoToken.OP_SUBTRACTION, lexeme?.length > 1 ? lexeme : "-", is.pointers().line, is.pointers().col)
+          }
+        };
+        if (lexeme === "/") return Token(ETipoToken.OP_DIVISION, lexeme, is.pointers().line, is.pointers().col);
+        if (lexeme === "*") return Token(ETipoToken.OP_MULTIPLICATION, lexeme, is.pointers().line, is.pointers().col);
+      }
+
+      // Create NUM token
+      else if (state === 5) {
         if (!isNaN(+c)) {
           lexeme += c
         }
         else {
           previousPointer();
-          if(lexeme.replaceAll(/\s/g, "") !== '') {
+          if (lexeme.replaceAll(/\s/g, "") !== '') {
             return Token(ETipoToken.NUM, lexeme.replaceAll(/\s/g, ""), is.pointers().line, is.pointers().col)
           }
           state = 1;
         }
       }
-
-      else if (state == 7) {
-         if(isAlphaNumeric(c)) { 
-           lexeme += c
-         }
-         else { 
-           previousPointer();
-           var token: ITokenModel = dictionary.get(lexeme.replaceAll(/\s/g, ""));
-           if(token) { 
-             return Token(token.name, token.lexema, is.pointers().line, is.pointers().col);
-           }
-           return Token(ETipoToken.ID, lexeme, is.pointers().line, is.pointers().col)
-         }
+      
+      // Create comment token
+      else if (state === 6) {
+        is.previous();
+        lexeme += is.peek().char;
+        while (is.peek().char !== '}') {
+          if (is.peek().char === "\r") {
+            panicMode.count += 1;
+            panicModeManger("Comments does not allow line wrapping -> Line: " + is.pointers().line + ", column: " + is.pointers().col);
+          }
+          if (is.peek().char === "") {
+            panicMode.count += 1;
+            panicModeManger("Not found ['}'] -> Line: " + is.pointers().line + ", column: " + is.pointers().col);
+          }
+          is.next();
+          lexeme += is.peek().char;
+        }
+        is.next();
+        return Token(ETipoToken.COMMENTS, `${lexeme}`, is.pointers().line, is.pointers().col)
       }
     }
   }
 
-  return { lexError, nextToken };
+  return { lexError, nextToken, symbols };
 }
 
-const isAlpha = str => /^[a-zA-Z]*$/.test(str);
-const isAlphaNumeric = str => /^[a-z0-9]+$/gi.test(str);
+const isAlpha: (c: string) => boolean = c => /^[a-zA-Z]*$/.test(c);
+const isAlphaNumeric: (c: string) => boolean = c => /^[a-zA-Z0-9]+$/gi.test(c);
+const isOperators: (c: string) => boolean = c => c === "+" || c === "-" || c === "/" || c === "*";
 
 export { Lexer }
