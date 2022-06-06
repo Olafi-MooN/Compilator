@@ -26,9 +26,9 @@ Terminal command to run the application using npm.
 ```bash
 npm start
 ```
-## Making the application working
-### Created by Alef Santos Soares - alefmastertutor@gmail.com
+## Created by 
+### Alef Santos Soares - alefmastertutor@gmail.com
 
 ## Co-programmers 
-Marlon Rodrigues  - marlonsrrodrigues@gmail.com
+Marlon Rodrigues  - marlonsrrodrigues@gmail.com <br>
 João Vitor Guimarães
