@@ -12,7 +12,7 @@ This project educational of study;
 ## Cloning repository
 Command to clone the application in your development environment
 ```bash
-git clone https://github.com/Olafi-MooN/Compiler.git
+git clone https://github.com/Olafi-MooN/Compilator.git
 ```
 
 ## Installation
