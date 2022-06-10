@@ -13,4 +13,8 @@ import { ReadFile } from "./ReadFile/ReadFile";
       console.log(token.token);
     }
   }
+  
+  console.log("\n\nsymbols\n\n")
+  lexer.symbols.forEach(smb => console.log(`< ${smb.name} , ${smb.lexema}>`));
+
 })()
