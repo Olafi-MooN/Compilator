@@ -1,10 +1,11 @@
+import { ILexerModel } from "../Interfaces/ILexerModel";
 import { ITokenModel } from "../Interfaces/ITokenModel";
 import { InputStream } from "../ReadFile/InputStream";
 import { symbols } from "../Token/Symbols";
 import { ETipoToken } from "../Token/TipoToken";
 import { Token } from "../Token/Token";
 
-function Lexer(file: string) {
+function Lexer(file: string): ILexerModel {
   let is = InputStream(file);
   let panicMode = { count: 0, message: [] };
   let EKW: typeof ETipoToken = ETipoToken;
@@ -22,7 +23,7 @@ function Lexer(file: string) {
     }
   }
 
-  function previousPointer() {
+  function previousPointer(): void {
     is.previous();
   }
 
@@ -184,7 +185,7 @@ function Lexer(file: string) {
     }
   }
 
-  return { lexError, nextToken, symbols };
+  return { nextToken, symbols };
 }
 
 const isAlpha: (c: string) => boolean = c => /^[a-zA-Z]*$/.test(c);

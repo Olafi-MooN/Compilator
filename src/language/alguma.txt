@@ -1,14 +1,14 @@
-program "HelloMiniLogo"
-:var;
-begin
-print "movendo para frente";
-:var 10;
-forward :var;
-print "iniciando loop";
-repeat 3 do
-begin
-turn 90 degrees;
-forward var
-end;
-print "fim"
-end
+program "main"
+  begin 
+    if 5 + 5 + 5 do
+      begin
+        print "ola mundo"
+      end
+    repeat 5 do 
+      begin
+        turn 5 degrees
+      end
+    print "vagabundo";
+    turn 5 degrees
+    forward 3
+  end
