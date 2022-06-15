@@ -1,1 +1,15 @@
-if 56
+program "main"
+  :var;
+  begin 
+    if 5 + 5 + 5 do
+      begin
+        print "olá mundo"
+      end
+    repeat 5 do 
+      begin
+        turn 5 degrees
+      end
+    print "vagabundo";
+    turn 5 degrees
+    forward 3
+  end

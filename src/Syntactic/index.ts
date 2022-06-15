@@ -122,10 +122,7 @@ const Syntactic = (lexer: ILexerModel) => {
           block();
           statement();
         } 
-      } else {
-        console.log("oii")
       }
-
     }
 
     // ‘;’ StatementList | ε
