@@ -50,7 +50,7 @@ const Syntactic = (lexer: ILexerModel) => {
     function decl() {
       if (expectationToken(Tag.SMB_TWO_POINTS)) {
         if (expectationToken(Tag.ID)) {
-          if (!expectationToken(Tag.SMB_TWO_POINTS)) {
+          if (!expectationToken(Tag.SMB_POINT_SEMICOLON)) {
             syntacticError(`Expected ${Tag.SMB_TWO_POINTS}, but it was found -> "${token.name}"`);
           }
         } else syntacticError(`Expected ${Tag.ID}, but it was found -> "${token.name}"`);
@@ -85,13 +85,13 @@ const Syntactic = (lexer: ILexerModel) => {
       }
 
       // ‘forward’ Term
-      if (expectationToken(Tag.KW_FORWARD)) {
+      else if (expectationToken(Tag.KW_FORWARD)) {
         term();
         statement();
       }
 
       // ‘repeat’ Term ‘do’ Block
-      if (expectationToken(Tag.KW_REPEAT)) {
+      else if (expectationToken(Tag.KW_REPEAT)) {
         term();
         if (expectationToken(Tag.KW_DO)) {
           block();
@@ -100,22 +100,21 @@ const Syntactic = (lexer: ILexerModel) => {
       }
 
       // ‘print’ literal
-      if (expectationToken(Tag.KW_PRINT)) {
+      else if (expectationToken(Tag.KW_PRINT)) {
         if (!expectationToken(Tag.LITERALS)) syntacticError(`Expected ${Tag.LITERALS}, but it was found -> "${token.name}"`);
         statement();
       }
 
-      
       // AssignmentStatement
       // ‘:’id Expr
-      if (expectationToken(Tag.SMB_TWO_POINTS)) {
+      else if (expectationToken(Tag.SMB_TWO_POINTS)) {
         if (!expectationToken(Tag.ID)) syntacticError(`Expected ${Tag.ID}, but it was found -> "${token.name} "`);
         expression();
         statement();
       }
       
       // IfStatement
-      if (expectationToken(Tag.KW_IF)) {
+      else if (expectationToken(Tag.KW_IF)) {
         while(token.name === Tag.NUM || token.name === Tag.OP_DIVISION || token.name === Tag.OP_SUBTRACTION|| token.name === Tag.OP_MULTIPLICATION|| token.name === Tag.OP_SUM ) { 
           expression();
         }
@@ -123,6 +122,8 @@ const Syntactic = (lexer: ILexerModel) => {
           block();
           statement();
         } 
+      } else {
+        console.log("oii")
       }
 
     }
@@ -131,7 +132,7 @@ const Syntactic = (lexer: ILexerModel) => {
     function statementListLine() {
       if (expectationToken(Tag.SMB_POINT_SEMICOLON)) {
         statementList();
-      } 
+      }
     }
 
     // Expr → Expr1 Expr’

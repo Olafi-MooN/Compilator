@@ -21,14 +21,14 @@ import { Syntactic } from "./Syntactic";
   console.log('\n\n\n\n\n\n');
 })();
 
-(async () => {
-  var language = (await ReadFile('alguma.txt')).toString();
-  const lexer = Lexer(language);
-  const syntactic = Syntactic(lexer);
+// (async () => {
+//   var language = (await ReadFile('alguma.txt')).toString();
+//   const lexer = Lexer(language);
+//   const syntactic = Syntactic(lexer);
 
-  syntactic.program();
+//   syntactic.program();
   
-  console.log("\n\ntable of symbols\n\n")
-  lexer.symbols.forEach(smb => console.log(`< ${smb.name} , ${smb.lexema}>`));
+//   console.log("\n\ntable of symbols\n\n")
+//   lexer.symbols.forEach(smb => console.log(`< ${smb.name} , ${smb.lexema}>`));
 
-})()
+// })()

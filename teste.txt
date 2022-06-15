@@ -1,1 +1,0 @@
-if 23 - 5 do begin print "ola mundo" end

@@ -101,13 +101,13 @@ function Lexer(file: string): ILexerModel {
           lexeme += c
         }
         else {
-          previousPointer();
           var token: ITokenModel = symbols.get(lexeme.replaceAll(/\s/g, ""));
           // Is Symbol
           if (token) {
             return Token(token.name, token.lexema, is.pointers().line, is.pointers().col);
           }
           // Is Id
+          is.previous();
           const tokenId: ITokenModel = Token(ETipoToken.ID, lexeme, is.pointers().line, is.pointers().col)
           symbols.set(lexeme, tokenId);
           return tokenId;
