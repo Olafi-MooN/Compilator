@@ -151,7 +151,7 @@ function Lexer(file: string): ILexerModel {
 
       // Create NUM token
       else if (state === 5) {
-        if (!isNaN(+c)) {
+        if (!isNaN(+c) && c !== '' && c !== ' ') {
           lexeme += c
         }
         else {
