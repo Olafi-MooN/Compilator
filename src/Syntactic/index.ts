@@ -53,6 +53,7 @@ const Syntactic = (lexer: ILexerModel) => {
           if (!expectationToken(Tag.SMB_POINT_SEMICOLON)) {
             syntacticError(`Expected ${Tag.SMB_TWO_POINTS}, but it was found -> "${token.name}"`);
           }
+          decl();
         } else syntacticError(`Expected ${Tag.ID}, but it was found -> "${token.name}"`);
       }
       block()

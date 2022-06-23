@@ -1,15 +1,14 @@
-program "main"
-  :var;
+program "literal" 
+:var; 
+:var2 ;  
+:var3 ; 
   begin 
-    if 5 + 5 + 5 do
-      begin
-        print "olá mundo"
-      end
-    repeat 5 do 
-      begin
-        turn 5 degrees
-      end
-    print "vagabundo";
-    turn 5 degrees
-    forward 3
+  forward :var ; 
+  repeat 10 do 
+  begin 
+    if 07 * 04 do 
+      begin 
+      print "literal" 
+      end 
+    end 
   end
