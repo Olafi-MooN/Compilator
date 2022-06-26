@@ -1,14 +1,5 @@
 program "literal" 
-:var; 
-:var2 ;  
-:var3 ; 
-  begin 
-  forward :var ; 
-  repeat 10 do 
-  begin 
-    if 07 * 04 do 
-      begin 
-      print "literal" 
-      end 
-    end 
-  end
+:var; :var2 ; :var3 ; :var4;
+begin 
+  turn :var2 degrees;
+end

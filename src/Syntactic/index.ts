@@ -1,13 +1,15 @@
 import { exit } from "process";
 import { ILexerModel } from "../Interfaces/ILexerModel"
 import { ITokenModel } from "../Interfaces/ITokenModel";
+import { Semantics } from "../Semantics";
 import { ETipoToken as Tag } from "../Token/TipoToken";
 
 const Syntactic = (lexer: ILexerModel) => {
-
+  const  { updateIdSymbolToken, validateId } =  Semantics();
   const lexeme: ILexerModel = lexer;
   // Mandatory initial reading of the first symbol
   var token: ITokenModel = lexeme.nextToken();
+
   if (token === null) {
     exit(0);
   }
@@ -49,6 +51,7 @@ const Syntactic = (lexer: ILexerModel) => {
 
     function decl() {
       if (expectationToken(Tag.SMB_TWO_POINTS)) {
+        updateIdSymbolToken(token);
         if (expectationToken(Tag.ID)) {
           if (!expectationToken(Tag.SMB_POINT_SEMICOLON)) {
             syntacticError(`Expected ${Tag.SMB_TWO_POINTS}, but it was found -> "${token.name}"`);
@@ -111,14 +114,12 @@ const Syntactic = (lexer: ILexerModel) => {
       else if (expectationToken(Tag.SMB_TWO_POINTS)) {
         if (!expectationToken(Tag.ID)) syntacticError(`Expected ${Tag.ID}, but it was found -> "${token.name} "`);
         expression();
-        statement();
+        setInterval(() => statement(), 1000);
       }
       
       // IfStatement
       else if (expectationToken(Tag.KW_IF)) {
-        while(token.name === Tag.NUM || token.name === Tag.OP_DIVISION || token.name === Tag.OP_SUBTRACTION|| token.name === Tag.OP_MULTIPLICATION|| token.name === Tag.OP_SUM ) { 
-          expression();
-        }
+        expression();
         if(expectationToken(Tag.KW_DO)) {
           block();
           statement();
@@ -169,6 +170,7 @@ const Syntactic = (lexer: ILexerModel) => {
     // Term → number | ‘:’id
     function term() {
       if (expectationToken(Tag.SMB_TWO_POINTS)) {
+        validateId(token);
         if (!expectationToken(Tag.ID)) {
           syntacticError(`Expected ":ID", but it was found -> "${token.name} "`);
         }
