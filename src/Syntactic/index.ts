@@ -9,6 +9,7 @@ const Syntactic = (lexer: ILexerModel) => {
   const lexeme: ILexerModel = lexer;
   // Mandatory initial reading of the first symbol
   var token: ITokenModel = lexeme.nextToken();
+  var stackBlock = [];
 
   if (token === null) {
     exit(0);
@@ -21,8 +22,10 @@ const Syntactic = (lexer: ILexerModel) => {
   function syntacticNextToken() {
     console.log("[DEBUG] token: " + token.token);
     token = lexer.nextToken();
-    if (token === null) {
-      exit(0);
+    if (token === null || token.name === Tag.EOF) {
+      token = stackBlock[2];
+      if (stackBlock.length > 1) throw new Error(`\u001b[31m Expected end block not found -> expect: block end`);
+      process.exit(0);
     }
   }
 
@@ -65,9 +68,14 @@ const Syntactic = (lexer: ILexerModel) => {
     // Block → ‘begin’ StatementList ‘end’
     function block() {
       if (expectationToken(Tag.KW_BEGIN)) {
+        stackBlock.push(token);
+        if(expectationToken(Tag.KW_END)) syntacticError(`Expected statementList, but it was found -> "${token.name}"`);
         statementList();
         if(!expectationToken(Tag.KW_END) ) { 
           syntacticError(`Expected ${Tag.KW_END}, but it was found -> "${token.name}"`);
+        } 
+        else {
+          stackBlock.shift()
         }
       } else {
         syntacticError(`Expected ${Tag.KW_BEGIN}, but it was found -> "${token.name}"`);
@@ -85,13 +93,13 @@ const Syntactic = (lexer: ILexerModel) => {
       if (expectationToken(Tag.KW_TURN)) {
         term();
         if (!expectationToken(Tag.KW_DEGREES)) syntacticError(`Expected ${Tag.KW_DEGREES}, but it was found -> "${token.name}"`);
-        statement();
+        statementList();
       }
 
       // ‘forward’ Term
       else if (expectationToken(Tag.KW_FORWARD)) {
         term();
-        statement();
+        statementList();
       }
 
       // ‘repeat’ Term ‘do’ Block
@@ -99,14 +107,14 @@ const Syntactic = (lexer: ILexerModel) => {
         term();
         if (expectationToken(Tag.KW_DO)) {
           block();
-          statement();
+          statementList();
         } else syntacticError(`Expected ${Tag.KW_DO}, but it was found -> "${token.name}"`);
       }
 
       // ‘print’ literal
       else if (expectationToken(Tag.KW_PRINT)) {
         if (!expectationToken(Tag.LITERALS)) syntacticError(`Expected ${Tag.LITERALS}, but it was found -> "${token.name}"`);
-        statement();
+        statementList();
       }
 
       // AssignmentStatement
@@ -114,7 +122,7 @@ const Syntactic = (lexer: ILexerModel) => {
       else if (expectationToken(Tag.SMB_TWO_POINTS)) {
         if (!expectationToken(Tag.ID)) syntacticError(`Expected ${Tag.ID}, but it was found -> "${token.name} "`);
         expression();
-        setInterval(() => statement(), 1000);
+        setInterval(() => statementList(), 1000);
       }
       
       // IfStatement
@@ -122,8 +130,8 @@ const Syntactic = (lexer: ILexerModel) => {
         expression();
         if(expectationToken(Tag.KW_DO)) {
           block();
-          statement();
-        } 
+          statementList();
+        } else syntacticError(`Expected ${Tag.KW_DO}, but it was found -> "${token.name}"`);
       }
     }
 
