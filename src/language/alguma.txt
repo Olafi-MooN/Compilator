@@ -1,14 +1,20 @@
-program "literal" 
-:var; 
-:var2 ;  
-:var3 ; 
-  begin 
-  forward :var ; 
-  repeat 10 do 
-  begin 
-    if 07 * 04 do 
-      begin 
-      print "literal" 
-      end 
-    end 
-  end
+program "HelloMiniLogo"
+:var;
+:age;
+begin
+  print "movendo para frente";
+  :var 10;
+  forward :var;
+  print "iniciando loop";
+  repeat 3 do
+    begin
+      turn 90 degrees;
+      if 4 do 
+        begin
+          print "olá mundo";
+        end;
+      forward :var;
+    end;
+  print "fim";
+  forward :age
+end

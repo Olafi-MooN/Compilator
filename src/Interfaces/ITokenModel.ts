@@ -5,11 +5,12 @@ interface ITokenModel {
   lexema: string,
   line?: number,
   column?: number,
-  token: string
+  token: string,
+  type: string,
 }
 
 interface ITokenFunctionModel {
-  (name: ETipoToken, lexema: string, line?: number, column?: number): ITokenModel;
+  (name: ETipoToken, lexema: string, line?: number, column?: number, type?: string): ITokenModel;
 }
 
 export { ITokenFunctionModel, ITokenModel }

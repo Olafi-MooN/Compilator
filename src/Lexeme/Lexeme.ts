@@ -104,6 +104,7 @@ function Lexer(file: string): ILexerModel {
           var token: ITokenModel = symbols.get(lexeme.replaceAll(/\s/g, ""));
           // Is Symbol
           if (token) {
+  
             return Token(token.name, token.lexema, is.pointers().line, is.pointers().col);
           }
           // Is Id
