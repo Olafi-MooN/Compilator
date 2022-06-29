@@ -1,20 +1,173 @@
 program "HelloMiniLogo"
-:var;
+:vardfdfds;
 :age;
+:var;
+:marlon;
 begin
   print "movendo para frente";
   :var 10;
   forward :var;
   print "iniciando loop";
+  turn :var degrees
+  :var 10 / 2;
+  if :var do
+    begin 
+      print "entrei no if";
+    end
   repeat 3 do
     begin
+      print "movendo para frente";
+      :var 10;
+      forward :var;
+      print "iniciando loop";
+      turn :var degrees
+      :var 10 / 2;
+      if :var do
+        begin 
+          print "entrei no if";
+        end
       turn 90 degrees;
       if 4 do 
         begin
-          print "olá mundo";
+          print "movendo para frente";
+          :var 10;
+          forward :var;
+          print "iniciando loop";
+          turn :var degrees
+          :var 10 / 2;
+          if :var do
+            begin 
+              print "entrei no if";
+              repeat :marlon do 
+                begin
+                  print "movendo para frente";
+                  :var 10;
+                  forward :var;
+                  print "iniciando loop";
+                  turn :var degrees
+                  :var 10 / 2;
+                  if :var do
+                    begin 
+                      print "entrei no if";
+                    end
+                  repeat 3 do
+                    begin
+                      print "movendo para frente";
+                      :var 10;
+                      forward :var;
+                      print "iniciando loop";
+                      turn :var degrees
+                      :var 10 / 2;
+                      if :var do
+                        begin 
+                          print "entrei no if";
+                        end
+                      turn 90 degrees;
+                      if 4 do 
+                        begin
+                          print "movendo para frente";
+                          :var 10;
+                          forward :var;
+                          print "iniciando loop";
+                          turn :var degrees
+                          :var 10 / 2;
+                          if :var do
+                            begin 
+                              print "entrei no if";
+                                print "movendo para frente";
+                                :var 10;
+                                forward :var;
+                                print "iniciando loop";
+                                turn :var degrees
+                                :var 10 / 2;
+                                if :var do
+                                  begin 
+                                    print "entrei no if";
+                                  end
+                                repeat 3 do
+                                  begin
+                                    print "movendo para frente";
+                                    :var 10;
+                                    forward :var;
+                                    print "iniciando loop";
+                                    turn :var degrees
+                                    :var 10 / 2;
+                                    if :var do
+                                      begin 
+                                        print "entrei no if";
+                                      end
+                                    turn 90 degrees;
+                                    if 4 do 
+                                      begin
+                                        print "movendo para frente";
+                                        :var 10;
+                                        forward :var;
+                                        print "iniciando loop";
+                                        turn :var degrees
+                                        :var 10 / 2;
+                                        if :var do
+                                          begin 
+                                            print "entrei no if";
+                                            repeat :marlon do 
+                                              begin
+                                                print "movendo para frente";
+                                                :var 10;
+                                                forward :var;
+                                                print "iniciando loop";
+                                                turn :var degrees
+                                                :var 10 / 2;
+                                                if :var do
+                                                  begin 
+                                                    print "entrei no if";
+                                                  end
+                                                repeat 3 do
+                                                  begin
+                                                    print "movendo para frente";
+                                                    :var 10;
+                                                    forward :var;
+                                                    print "iniciando loop";
+                                                    turn :var degrees
+                                                    :var 10 / 2;
+                                                    if :var do
+                                                      begin 
+                                                        print "entrei no if";
+                                                      end
+                                                    turn 90 degrees;
+                                                    if 4 do 
+                                                      begin
+                                                        print "movendo para frente";
+                                                        :var 10;
+                                                        forward :var;
+                                                        print "iniciando loop";
+                                                        turn :var degrees
+                                                        :var 10 / 2;
+                                                        if :var do
+                                                          begin 
+                                                            print "entrei no if";
+                                                          end
+                                                      end;
+                                                    forward :var;
+                                                  end;
+                                                print "fim";
+                                                forward :age ;
+                                              end
+                                          end
+                                      end;
+                                    forward :var;
+                                  end;
+                                print "fim"
+                                forward :age ;
+                            end
+                        end;
+                      forward :var;
+                    end;
+                  print "fim";
+                  forward :age ;
+                end
+            end
         end;
       forward :var;
     end;
-  print "fim";
-  forward :age
+  print "fim"
+  forward :age ;
 end

@@ -122,7 +122,7 @@ const Syntactic = (lexer: ILexerModel) => {
       else if (expectationToken(Tag.SMB_TWO_POINTS)) {
         if (!expectationToken(Tag.ID)) syntacticError(`Expected ${Tag.ID}, but it was found -> "${token.name} "`);
         expression();
-        setInterval(() => statementList(), 1000);
+        statementList();
       }
       
       // IfStatement

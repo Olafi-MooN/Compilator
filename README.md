@@ -31,4 +31,4 @@ npm start
 
 ## Co-programmers 
 Marlon Rodrigues  - marlonsrrodrigues@gmail.com <br>
-João Vitor Guimarães
+João Vitor Guimarães - eu@joaoguimaraes.com
